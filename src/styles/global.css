@@ -1,0 +1,343 @@
+/*
+ * saxon.zone — the whole stylesheet. No framework; the page is one template
+ * with four kinds of block in it.
+ */
+
+:root {
+  --font-heading: 'Libre Baskerville', Georgia, serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  /* Deep colour appears only in small quantity (links, headings) against the
+   * large pale ground below. */
+  --accent: #1c5a86;
+  --ink: #191c20;
+  --ink-heading: #0f1418;
+  --ink-muted: #5f6570;
+
+  --measure: 56rem; /* page width */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  line-height: 1.6;
+  color: var(--ink);
+  background-color: #e6e5dd;
+}
+
+/*
+ * The ground. One large pale field grading from a cool blue at the top to a
+ * warm beige at the bottom — the two hues meet across the whole page rather
+ * than at an edge, so neither reads as a band.
+ *
+ * A fixed pseudo-element rather than a body background: the gradient then
+ * measures against the viewport and stays put while content scrolls, so a long
+ * page doesn't stretch and repeat it.
+ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(170deg, #dde6ee 0%, #e6e5dd 46%, #efe5d3 100%);
+}
+
+/*
+ * The carpet. A fixed field of the PDX motif (src/assets/carpet.svg) sitting over
+ * the ground and under the content. It reads only in the side margins: a
+ * horizontal mask clears it across the central content band (~the .page width)
+ * so text never sits on texture. Tune reach via the mask stops; tune weight via
+ * opacity; edit the motif itself in carpet.svg.
+ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.14;
+  background: url('../assets/carpet.svg') center / cover no-repeat;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(50% - 30rem),
+    transparent calc(50% - 22rem),
+    transparent calc(50% + 22rem),
+    #000 calc(50% + 30rem)
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0,
+    #000 calc(50% - 30rem),
+    transparent calc(50% - 22rem),
+    transparent calc(50% + 22rem),
+    #000 calc(50% + 30rem)
+  );
+}
+
+.page {
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding: 5rem 1.5rem 4rem;
+}
+
+@media (min-width: 640px) {
+  .page {
+    padding-inline: 2.5rem;
+  }
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus-visible {
+  text-decoration: underline;
+}
+
+/* Masthead ---------------------------------------------------------------- */
+
+.site-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 7vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: var(--ink-heading);
+}
+
+/* Temporary "site under construction" notice. A tinted, bordered callout —
+ * deliberately not a section heading, so it reads as an aside, not a project. */
+.callout {
+  margin: 0 0 5rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(28, 90, 134, 0.3);
+  border-left: 4px solid var(--accent);
+  border-radius: 6px;
+  background: rgba(28, 90, 134, 0.06);
+  text-align: center;
+}
+
+.callout__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--ink-heading);
+}
+
+.callout p {
+  margin: 0;
+}
+
+.callout__gif {
+  display: block;
+  width: 360px;
+  max-width: 100%;
+  height: auto;
+  margin: 1rem auto 0;
+  border-radius: 4px;
+}
+
+/* A copy of the footer link bar, sitting under the masthead so the reader can
+ * reach the links without scrolling to the bottom. */
+.masthead-links {
+  margin: 0 0 5rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+/* Groups and projects ----------------------------------------------------- */
+
+.group {
+  margin-bottom: 5rem;
+}
+
+/* Centered, with a hairline reaching out to each side that fades before the
+ * page edge — a light rule flanking the title rather than a full underline. */
+.group__heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: 0 0 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.875rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink-heading);
+}
+
+.group__heading::before,
+.group__heading::after {
+  content: '';
+  flex: 0 1 6rem;
+  height: 1px;
+  background: var(--ink-muted);
+}
+
+.group__heading::before {
+  -webkit-mask-image: linear-gradient(to left, #000, transparent);
+  mask-image: linear-gradient(to left, #000, transparent);
+}
+
+.group__heading::after {
+  -webkit-mask-image: linear-gradient(to right, #000, transparent);
+  mask-image: linear-gradient(to right, #000, transparent);
+}
+
+.project {
+  display: grid;
+  gap: 1.5rem;
+  padding-block: 2rem;
+}
+
+/* Two columns only when there's room for the screenshot to sit beside the
+ * text; below that the image stacks above its description. */
+@media (min-width: 768px) {
+  .project {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  /* Alternating sides. Default DOM order already puts the media first, so only
+   * the flipped rows need to swap. */
+  .project--flip .project__media {
+    order: 2;
+  }
+
+  .project--flip .project__text {
+    order: 1;
+  }
+}
+
+.project__name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink-heading);
+}
+
+/* Justified on a narrow column strands few words per line, so the spaces
+ * stretch. Sparse hyphenation lets a long word break to fill the line without
+ * chopping short words: a word must be 8+ letters, leaving 4 before the break
+ * and 5 after. */
+.project__body {
+  margin: 0 0 1rem;
+  text-align: justify;
+  hyphens: auto;
+  hyphenate-limit-chars: 8 4 5;
+}
+
+.project__links {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.sep {
+  margin-inline: 0.5rem;
+  color: var(--ink-muted);
+  opacity: 0.5;
+}
+
+/* Screenshots ------------------------------------------------------------- */
+
+/* Without a panel behind it, a screenshot needs its own edge to sit on the
+ * ground rather than float loose on it. */
+/* Cap the height so a tall (portrait) screenshot doesn't dominate the row;
+ * width follows to keep the aspect ratio, and the image centers in its cell. */
+.shot {
+  display: block;
+  max-width: 100%;
+  max-height: 26rem;
+  width: auto;
+  height: auto;
+  margin-inline: auto;
+  border: 1px solid hsl(210 18% 30% / 0.14);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 20px hsl(210 20% 25% / 0.1);
+  cursor: zoom-in;
+}
+
+/* Stands in until a real image lands, at the aspect ratio the image will
+ * occupy, so swapping one in changes no layout. */
+.shot-placeholder {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  border: 1px dashed hsl(210 18% 30% / 0.28);
+  border-radius: 0.5rem;
+  background: hsl(210 20% 40% / 0.05);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(210 12% 32% / 0.55);
+}
+
+/* Footer ------------------------------------------------------------------ */
+
+.site-footer {
+  font-size: 0.875rem;
+  text-align: center;
+  color: var(--ink-muted);
+}
+
+/* Lightbox ---------------------------------------------------------------- */
+
+/* Native <dialog> driven by Lightbox.astro: fills the viewport on mobile,
+ * shows a large centered image on desktop. */
+.lightbox {
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.lightbox::backdrop {
+  background: rgb(14 16 20 / 0.88);
+}
+
+.lightbox img {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: auto;
+  height: auto;
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 0.25rem;
+  cursor: zoom-out;
+}
+
+.lightbox-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 1.5rem 1.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-style: italic;
+  text-align: center;
+  color: rgb(255 255 255 / 0.92);
+  background: linear-gradient(to top, rgb(0 0 0 / 0.7), transparent);
+  pointer-events: none;
+}
+
+.lightbox-caption[hidden] {
+  display: none;
+}

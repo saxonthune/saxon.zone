@@ -1,0 +1,63 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import ProjectSection from '../components/ProjectSection.astro';
+import { groups } from '../data/projects';
+import stuckGif from '../assets/austin-powers-stuck.gif';
+
+// The screenshot alternates side across the whole page, not within each group,
+// so the rhythm reads as one column of work rather than restarting per heading.
+let row = 0;
+
+// One source for the link bar, rendered both under the masthead (so the reader
+// reaches them without scrolling) and in the footer.
+const contactLinks = [
+  { label: 'GitHub', href: 'https://github.com/saxonthune' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/saxonthune' },
+  { label: 'hi@saxon.zone', href: 'mailto:hi@saxon.zone' },
+  { label: 'Hire Me', href: 'https://computation.saxon.zone/hire-me' },
+];
+---
+<Base
+  title="saxon.zone"
+  description="Writing, developer tools, and applications by Saxon Thune."
+>
+  <h1 class="site-title">saxon.zone</h1>
+  <nav class="masthead-links" aria-label="Contact">
+    {contactLinks.map((link, i) => (
+      <>
+        {i > 0 && <span class="sep">&middot;</span>}
+        <a href={link.href}>{link.label}</a>
+      </>
+    ))}
+  </nav>
+
+  <aside id="in-progress" class="callout">
+    <p class="callout__title">Site In Progress</p>
+    <p>Hold on, I can fix this. Check back soon!</p>
+    <Image
+      class="callout__gif"
+      src={stuckGif}
+      alt="Austin Powers stuck doing an endless three-point turn"
+      widths={[360, 498]}
+      sizes="360px"
+      loading="lazy"
+    />
+  </aside>
+
+  {groups.map((group) => (
+    <section id={group.id} class="group">
+      <h2 class="group__heading">{group.heading}</h2>
+      {group.projects.map((project) => <ProjectSection project={project} flip={row++ % 2 === 1} />)}
+    </section>
+  ))}
+
+  <footer class="site-footer">
+    {contactLinks.map((link, i) => (
+      <>
+        {i > 0 && <span class="sep">&middot;</span>}
+        <a href={link.href}>{link.label}</a>
+      </>
+    ))}
+  </footer>
+</Base>

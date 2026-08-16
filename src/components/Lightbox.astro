@@ -1,0 +1,29 @@
+---
+// Site-wide image viewer, ported from computation-site. Include once per
+// layout. Any `img[data-zoomable]` becomes clickable: opens a native <dialog>
+// — fullscreen-ish on mobile, a large centered view on desktop. Click anywhere
+// or press Esc to close. No dependencies.
+---
+<dialog id="lightbox" class="lightbox" aria-label="Image viewer">
+  <img id="lightbox-img" alt="" />
+  <p id="lightbox-caption" class="lightbox-caption" hidden></p>
+</dialog>
+<script>
+  const dlg = document.getElementById('lightbox') as HTMLDialogElement | null;
+  const big = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  const cap = document.getElementById('lightbox-caption') as HTMLParagraphElement | null;
+  if (dlg && big && cap) {
+    document.querySelectorAll<HTMLImageElement>('img[data-zoomable]').forEach((el) => {
+      el.addEventListener('click', () => {
+        big.src = el.dataset.fullsrc || el.currentSrc || el.src;
+        big.alt = el.alt;
+        const text = el.dataset.caption || el.alt || '';
+        cap.textContent = text;
+        cap.hidden = !text;
+        dlg.showModal();
+      });
+    });
+
+    dlg.addEventListener('click', () => dlg.close());
+  }
+</script>

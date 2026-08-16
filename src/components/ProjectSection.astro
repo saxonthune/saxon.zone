@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import type { Project } from '../data/projects';
+
+interface Props {
+  project: Project;
+  /** Put the screenshot on the right instead of the left. */
+  flip?: boolean;
+}
+const { project, flip = false } = Astro.props;
+---
+<article class={flip ? 'project project--flip' : 'project'}>
+  <div class="project__media">
+    {project.shot ? (
+      <Image
+        class="shot"
+        src={project.shot}
+        alt={`Screenshot of ${project.name}`}
+        widths={[480, 960, 1440]}
+        sizes="(min-width: 768px) 45vw, 100vw"
+        data-zoomable
+        data-caption={project.name}
+        data-fullsrc={project.shot.src}
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <div class="shot-placeholder">{project.name}</div>
+    )}
+  </div>
+
+  <div class="project__text">
+    <h3 class="project__name">{project.name}</h3>
+    <p class="project__body">{project.body}</p>
+    <p class="project__links">
+      {project.links.map((link, i) => (
+        <>
+          {i > 0 && <span class="sep">&middot;</span>}
+          <a href={link.href}>{link.label}</a>
+        </>
+      ))}
+    </p>
+  </div>
+</article>
