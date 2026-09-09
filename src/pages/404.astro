@@ -1,0 +1,25 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import stuckGif from '../assets/austin-powers-stuck.gif';
+---
+<Base
+  title="404 — saxon.zone"
+  description="The page you were looking for could not be found."
+>
+  <h1 class="site-title">404</h1>
+
+  <aside class="callout">
+    <p class="callout__title">Page Not Found</p>
+    <p>Hold on, I can fix this. Check back soon!</p>
+    <Image
+      class="callout__gif"
+      src={stuckGif}
+      alt="Austin Powers stuck doing an endless three-point turn"
+      widths={[360, 498]}
+      sizes="360px"
+    />
+  </aside>
+
+  <p class="site-footer"><a href="/">Back to saxon.zone</a></p>
+</Base>

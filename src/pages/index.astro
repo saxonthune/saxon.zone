@@ -1,0 +1,49 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectSection from '../components/ProjectSection.astro';
+import { groups } from '../data/projects';
+
+// The screenshot alternates side across the whole page, not within each group,
+// so the rhythm reads as one column of work rather than restarting per heading.
+let row = 0;
+
+// One source for the link bar, rendered both under the masthead (so the reader
+// reaches them without scrolling) and in the footer.
+const contactLinks = [
+  { label: 'hi@saxon.zone', href: 'mailto:hi@saxon.zone' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/saxonthune' },
+  { label: 'GitHub', href: 'https://github.com/saxonthune' },
+];
+---
+<Base
+  title="saxon.zone"
+  description="Writing, developer tools, and applications by Saxon Thune."
+>
+  <h1 class="site-title">saxon.zone</h1>
+  <nav class="masthead-links" aria-label="Contact">
+    {contactLinks.map((link, i) => (
+      <>
+        {i > 0 && <span class="sep">&middot;</span>}
+        <a href={link.href}>{link.label}</a>
+      </>
+    ))}
+  </nav>
+  <p class="site-intro">Hi, I'm Saxon, I'm a professional software developer in New York City. Below is a list of writing and personal software projects. If you're interested in software, AI, the future of our profession, tennis, or anything else, I'd love to hear from you.</p>
+
+
+  {groups.map((group) => (
+    <section id={group.id} class="group">
+      <h2 class="group__heading">{group.heading}</h2>
+      {group.projects.map((project) => <ProjectSection project={project} flip={row++ % 2 === 1} />)}
+    </section>
+  ))}
+
+  <footer class="site-footer">
+    {contactLinks.map((link, i) => (
+      <>
+        {i > 0 && <span class="sep">&middot;</span>}
+        <a href={link.href}>{link.label}</a>
+      </>
+    ))}
+  </footer>
+</Base>
