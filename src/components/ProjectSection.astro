@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import type { Project } from '../data/projects';
+import ProjectGallery from './ProjectGallery.astro';
 
 interface Props {
   project: Project;
@@ -11,7 +12,9 @@ const { project, flip = false } = Astro.props;
 ---
 <article class={flip ? 'project project--flip' : 'project'}>
   <div class="project__media">
-    {project.shot ? (
+    {project.gallery?.length ? (
+      <ProjectGallery projectName={project.name} images={project.gallery} />
+    ) : project.shot ? (
       <Image
         class="shot"
         src={project.shot}

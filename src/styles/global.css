@@ -114,6 +114,12 @@ a:focus-visible {
   color: var(--ink-heading);
 }
 
+.site-intro {
+  max-width: 42rem;
+  margin: 0 auto 1.5rem;
+  text-align: center;
+}
+
 /* Temporary "site under construction" notice. A tinted, bordered callout —
  * deliberately not a section heading, so it reads as an aside, not a project. */
 .callout {
@@ -281,6 +287,88 @@ a:focus-visible {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: hsl(210 12% 32% / 0.55);
+}
+
+/* Galleries keep one stable frame while their slides crossfade. The aspect
+ * ratio is selected from the gallery's source images: mixed orientations get
+ * a square frame, portrait galleries get a boxier frame, and landscape
+ * galleries keep the normal project ratio. */
+.gallery__viewport {
+  position: relative;
+  aspect-ratio: var(--gallery-aspect, 16 / 10);
+  max-height: 26rem;
+  overflow: hidden;
+}
+
+.gallery__slide {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 450ms ease;
+}
+
+.gallery__slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.gallery__image {
+  display: block;
+  width: var(--gallery-image-width, 100%);
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+  margin: auto;
+  border: 1px solid hsl(210 18% 30% / 0.14);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 20px hsl(210 20% 25% / 0.1);
+}
+
+.gallery__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.gallery__arrow,
+.gallery__dot {
+  border: 0;
+  color: var(--accent);
+  background: transparent;
+  cursor: pointer;
+}
+
+.gallery__arrow {
+  padding: 0.125rem 0.25rem;
+  font-size: 1rem;
+}
+
+.gallery__dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gallery__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  padding: 0;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+}
+
+.gallery__dot[aria-current='true'] {
+  background: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery__slide {
+    transition: none;
+  }
 }
 
 /* Footer ------------------------------------------------------------------ */

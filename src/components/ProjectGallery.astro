@@ -1,0 +1,123 @@
+---
+import { Image } from 'astro:assets';
+import type { GalleryImage } from '../data/projects';
+
+interface Props {
+  projectName: string;
+  images: GalleryImage[];
+}
+
+const { projectName, images } = Astro.props;
+const aspectRatios = images.map(({ image }) => image.width / image.height);
+const hasPortrait = aspectRatios.some((ratio) => ratio < 1);
+const hasLandscape = aspectRatios.some((ratio) => ratio > 1);
+const frameAspect = hasPortrait && hasLandscape ? 1 : hasPortrait ? 4 / 5 : 16 / 10;
+---
+<div
+  class="gallery"
+  data-gallery
+  aria-label={`${projectName} image gallery`}
+  style={`--gallery-aspect: ${frameAspect}`}
+>
+  <div class="gallery__viewport">
+    {images.map((slide, i) => (
+      <div
+        class={i === 0 ? 'gallery__slide is-active' : 'gallery__slide'}
+        data-gallery-slide
+        aria-hidden={i === 0 ? 'false' : 'true'}
+      >
+        <Image
+          class="gallery__image"
+          src={slide.image}
+          alt={slide.alt}
+          widths={[480, 960, 1440]}
+          sizes="(min-width: 768px) 45vw, 100vw"
+          data-zoomable
+          data-caption={slide.caption || projectName}
+          data-fullsrc={slide.image.src}
+          loading="eager"
+          decoding="async"
+          style={`--gallery-image-width: ${Math.min(100, (slide.image.width / slide.image.height / frameAspect) * 100)}%`}
+        />
+      </div>
+    ))}
+  </div>
+
+  {images.length > 1 && (
+    <div class="gallery__controls">
+      <button class="gallery__arrow" type="button" data-gallery-prev aria-label="Previous image">&#8592;</button>
+      <div class="gallery__dots" aria-label="Choose gallery image">
+        {images.map((slide, i) => (
+          <button
+            class="gallery__dot"
+            type="button"
+            data-gallery-to={i}
+            aria-label={`Show image ${i + 1}`}
+            aria-current={i === 0 ? 'true' : undefined}
+          ></button>
+        ))}
+      </div>
+      <button class="gallery__arrow" type="button" data-gallery-next aria-label="Next image">&#8594;</button>
+    </div>
+  )}
+</div>
+
+<script>
+  const galleries = document.querySelectorAll<HTMLElement>('[data-gallery]');
+
+  galleries.forEach((gallery) => {
+    const slides = Array.from(gallery.querySelectorAll<HTMLElement>('[data-gallery-slide]'));
+    const dots = Array.from(gallery.querySelectorAll<HTMLButtonElement>('[data-gallery-to]'));
+    const previous = gallery.querySelector<HTMLButtonElement>('[data-gallery-prev]');
+    const next = gallery.querySelector<HTMLButtonElement>('[data-gallery-next]');
+
+    if (slides.length < 2 || !previous || !next) return;
+
+    let current = 0;
+    let timer: number | undefined;
+
+    const stop = () => {
+      if (timer !== undefined) window.clearInterval(timer);
+      timer = undefined;
+    };
+
+    const start = () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      stop();
+      timer = window.setInterval(() => show(current + 1), 5000);
+    };
+
+    const show = (requested: number) => {
+      const target = (requested + slides.length) % slides.length;
+      slides[current].classList.remove('is-active');
+      slides[current].setAttribute('aria-hidden', 'true');
+      dots[current].removeAttribute('aria-current');
+      slides[target].classList.add('is-active');
+      slides[target].setAttribute('aria-hidden', 'false');
+      dots[target].setAttribute('aria-current', 'true');
+      current = target;
+    };
+
+    previous.addEventListener('click', () => {
+      show(current - 1);
+      start();
+    });
+    next.addEventListener('click', () => {
+      show(current + 1);
+      start();
+    });
+    dots.forEach((dot, i) => dot.addEventListener('click', () => {
+      show(i);
+      start();
+    }));
+
+    gallery.addEventListener('mouseenter', stop);
+    gallery.addEventListener('mouseleave', start);
+    gallery.addEventListener('focusin', stop);
+    gallery.addEventListener('focusout', (event) => {
+      if (!gallery.contains(event.relatedTarget as Node | null)) start();
+    });
+
+    start();
+  });
+</script>
